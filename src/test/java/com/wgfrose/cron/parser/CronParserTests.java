@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.DayOfWeek;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -19,15 +20,16 @@ public class CronParserTests {
     @Test
     public void testValidCronPatterns() {
         System.out.println(cronParser.parse("23 0-20/2 1,15 * 1-5 /usr/bin/find"));
-//        Assert.assertEquals("Valid pattern!", cronParser.parse("23 0-20/2 1,15 * 1-5 /usr/bin/find"));
-//        Assert.assertEquals("Valid pattern!", cronParser.parse("5 4 * * SUN /usr/bin/find"));
-//        Assert.assertEquals("Valid pattern!", cronParser.parse("10,44 14 * 3 WED /usr/bin/find"));
-//        Assert.assertEquals("Valid pattern!", cronParser.parse("15 10 * * MON-FRI /usr/bin/find"));
+        System.out.println(cronParser.parse("5 4 * * SUN /usr/bin/find"));
+        System.out.println(cronParser.parse("10,44 14 * 3 SUN-SAT /usr/bin/find"));
+        System.out.println(cronParser.parse("10,44 14 * 3 SUN-FRI/2 /usr/bin/find"));
+        System.out.println(cronParser.parse("10,44 14 * 3 */2 /usr/bin/find"));
+        System.out.println(cronParser.parse("15 10 * * MON-FRI /usr/bin/find"));
     }
 
     @Test
     public void testInvalidCronPatterns() {
-        //Assert.assertEquals("Invalid cron pattern", cronParser.parse("*/15 0 1,15 * 1-5 7 /usr/bin/find"));
+        Assert.assertEquals("Invalid cron pattern", cronParser.parse("*/15 0 1,15 * 1-5 7 /usr/bin/find"));
     }
 
 }

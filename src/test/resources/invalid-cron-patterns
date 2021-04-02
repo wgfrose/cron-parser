@@ -1,5 +1,0 @@
-*/15 0 1,15 * 1-5 //usr/bin//find
-*/15 0 1,15 n 1-5 /usr/bin/find
-*/15 0 1,100 * 1-5 /usr/bin/find
-*/15 0 1,15 * 15 /usr/bin/find
-not-a-pattern

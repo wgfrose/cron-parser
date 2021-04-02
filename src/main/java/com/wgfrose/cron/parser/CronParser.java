@@ -35,10 +35,14 @@ public class CronParser {
     private String expandedDayOfMonth;
     private String expandedMonth;
     private String expandedDayOfWeek;
-    private String command;
 
     public CronParser() {
         this.regexMap = this.buildCronRegex();
+    }
+
+    public static void main(String[] args) {
+        CronParser parser = new CronParser();
+        System.out.println(parser.parse(args[0]));
     }
 
     public String parse(final String argument) {
@@ -94,19 +98,19 @@ public class CronParser {
     }
 
     private String printExpanded(String[] fields) {
-        this.expandedMinute = expandField(fields[this.minuteIndex], 0, 59);
-        this.expandedHour = expandField(fields[this.hourIndex], 0, 23);
-        this.expandedDayOfMonth = expandField(fields[this.dayOfMonthIndex], 1, 31);
-        this.expandedMonth = expandField(fields[this.monthIndex], 1, 12);
-        this.expandedDayOfWeek = expandField(fields[this.dayOfWeekIndex], 1, 7);
-
         StringBuilder stringbuilder = new StringBuilder();
-        stringbuilder.append(minuteLabel).append(" ").append(this.expandedMinute).append("\n");
-        stringbuilder.append(hourLabel).append(" ").append(this.expandedHour).append("\n");
-        stringbuilder.append(dayOfMonthLabel).append(" ").append(this.expandedDayOfMonth).append("\n");
-        stringbuilder.append(monthLabel).append(" ").append(this.expandedMonth).append("\n");
-        stringbuilder.append(dayOfWeekLabel).append(" ").append(this.expandedDayOfWeek).append("\n");
-        stringbuilder.append(commandLabel).append(" ").append(this.command);
+        this.expandedMinute = expandField(fields[minuteIndex], 0, 59);
+        this.expandedHour = expandField(fields[hourIndex], 0, 23);
+        this.expandedDayOfMonth = expandField(fields[dayOfMonthIndex], 1, 31);
+        this.expandedMonth = expandField(fields[monthIndex], 1, 12);
+        this.expandedDayOfWeek = expandField(fields[dayOfWeekIndex], 0, 6);
+
+        stringbuilder.append(padRightSpaces(minuteLabel, 14)).append(expandedMinute).append("\n");
+        stringbuilder.append(padRightSpaces(hourLabel, 14)).append(expandedHour).append("\n");
+        stringbuilder.append(padRightSpaces(dayOfMonthLabel, 14)).append(expandedDayOfMonth).append("\n");
+        stringbuilder.append(padRightSpaces(monthLabel, 14)).append(expandedMonth).append("\n");
+        stringbuilder.append(padRightSpaces(dayOfWeekLabel, 14)).append(expandedDayOfWeek).append("\n");
+        stringbuilder.append(padRightSpaces(commandLabel, 14)).append(fields[commandIndex]).append("\n");
 
         return stringbuilder.toString();
     }
@@ -118,15 +122,25 @@ public class CronParser {
             Integer.parseInt(field);
             expandedField = field;
         } catch (NumberFormatException e) {
-            if (field.contains("-") && !field.contains("/")) {
+            if (field.contains(",")) {
+                String[] splits = field.split(",");
+                for (String split : splits) {
+                    expandedField += split + FIELD_DELIMITER;
+                }
+            } else if (field.contains("-") && !field.contains("/")) {
                 int start = Integer.parseInt(field.split("-")[0]);
                 int end = Integer.parseInt(field.split("-")[1]);
+                if (start > end) end = (max * 2);
                 for (int i = start; i <= end; i++) {
-                    expandedField += i + FIELD_DELIMITER;
+                    if (i > max) {
+                        expandedField += (i - max - 1) + FIELD_DELIMITER;
+                    } else {
+                        expandedField += i + FIELD_DELIMITER;
+                    }
                 }
             } else if (!field.contains("-") & field.contains("/")) {
                 int step = Integer.parseInt(field.split("/")[1]);
-                for (int i = 0; i <= 59; i++) {
+                for (int i = min; i <= max; i++) {
                     if (i % step == 0) {
                         expandedField += i + FIELD_DELIMITER;
                     }
@@ -135,9 +149,14 @@ public class CronParser {
                 int step = Integer.parseInt(field.split("/")[1]);
                 int start = Integer.parseInt(field.split("/")[0].split("-")[0]);
                 int end = Integer.parseInt(field.split("/")[0].split("-")[1]);
+                if (start > end) end = (max * 2);
                 for (int i = start; i <= end; i++) {
-                    if (i % step == 0) {
-                        expandedField += i + FIELD_DELIMITER;
+                    if ((i > max) && ((i - max) % step == 0)) {
+                        expandedField += (i - max - 1) + FIELD_DELIMITER;
+                    } else {
+                        if (i % step == 0) {
+                            expandedField += i + FIELD_DELIMITER;
+                        }
                     }
                 }
             } else if (field.contains("*")) {
@@ -147,6 +166,18 @@ public class CronParser {
             }
         }
         return expandedField;
+    }
+
+    public String padRightSpaces(String inputString, int length) {
+        if (inputString.length() >= length) {
+            return inputString;
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append(inputString);
+        while (sb.length() < length) {
+            sb.append(' ');
+        }
+        return sb.toString();
     }
 
     // Not allowing for '?', 'L', 'W' or '#' special characters
@@ -182,42 +213,60 @@ public class CronParser {
 
     private String swapNamesForNumbers(String field) {
         if (field.contains("mon") || field.contains("MON")) {
-            field = field.replaceAll("(?i)mon", String.valueOf(DayOfWeek.MONDAY.getValue()));
-        } else if (field.contains("tue") || field.contains("TUE")) {
-            field = field.replaceAll("(?i)tue", String.valueOf(DayOfWeek.TUESDAY.getValue()));
-        } else if (field.contains("wed") || field.contains("WED")) {
-            field = field.replaceAll("(?i)wed", String.valueOf(DayOfWeek.WEDNESDAY.getValue()));
-        } else if (field.contains("thu") || field.contains("THU")) {
-            field = field.replaceAll("(?i)thu", String.valueOf(DayOfWeek.THURSDAY.getValue()));
-        } else if (field.contains("fri") || field.contains("FRI")) {
-            field = field.replaceAll("(?i)fri", String.valueOf(DayOfWeek.FRIDAY.getValue()));
-        } else if (field.contains("sat") || field.contains("SAT")) {
-            field = field.replaceAll("(?i)sat", String.valueOf(DayOfWeek.SATURDAY.getValue()));
-        } else if (field.contains("sun") || field.contains("SUN")) {
-            field = field.replaceAll("(?i)sun", String.valueOf(DayOfWeek.SUNDAY.getValue()));
-        } else if (field.contains("jan") || field.contains("JAN")) {
+            field = field.replaceAll("(?i)mon", "1");
+        }
+        if (field.contains("tue") || field.contains("TUE")) {
+            field = field.replaceAll("(?i)tue", "2");
+        }
+        if (field.contains("wed") || field.contains("WED")) {
+            field = field.replaceAll("(?i)wed", "3");
+        }
+        if (field.contains("thu") || field.contains("THU")) {
+            field = field.replaceAll("(?i)thu", "4");
+        }
+        if (field.contains("fri") || field.contains("FRI")) {
+            field = field.replaceAll("(?i)fri", "5");
+        }
+        if (field.contains("sat") || field.contains("SAT")) {
+            field = field.replaceAll("(?i)sat", "6");
+        }
+        if (field.contains("sun") || field.contains("SUN")) {
+            field = field.replaceAll("(?i)sun", "0");
+        }
+        if (field.contains("jan") || field.contains("JAN")) {
             field = field.replaceAll("(?i)jan", String.valueOf(Month.JANUARY.getValue()));
-        } else if (field.contains("feb") || field.contains("FEB")) {
+        }
+        if (field.contains("feb") || field.contains("FEB")) {
             field = field.replaceAll("(?i)feb", String.valueOf(Month.FEBRUARY.getValue()));
-        } else if (field.contains("mar") || field.contains("MAR")) {
+        }
+        if (field.contains("mar") || field.contains("MAR")) {
             field = field.replaceAll("(?i)mar", String.valueOf(Month.MARCH.getValue()));
-        } else if (field.contains("apr") || field.contains("APR")) {
+        }
+        if (field.contains("apr") || field.contains("APR")) {
             field = field.replaceAll("(?i)apr", String.valueOf(Month.APRIL.getValue()));
-        } else if (field.contains("may") || field.contains("MAY")) {
+        }
+        if (field.contains("may") || field.contains("MAY")) {
             field = field.replaceAll("(?i)may", String.valueOf(Month.MAY.getValue()));
-        } else if (field.contains("jun") || field.contains("JUN")) {
+        }
+        if (field.contains("jun") || field.contains("JUN")) {
             field = field.replaceAll("(?i)jun", String.valueOf(Month.JUNE.getValue()));
-        } else if (field.contains("jul") || field.contains("JUL")) {
+        }
+        if (field.contains("jul") || field.contains("JUL")) {
             field = field.replaceAll("(?i)jul", String.valueOf(Month.JULY.getValue()));
-        } else if (field.contains("aug") || field.contains("AUG")) {
+        }
+        if (field.contains("aug") || field.contains("AUG")) {
             field = field.replaceAll("(?i)aug", String.valueOf(Month.AUGUST.getValue()));
-        } else if (field.contains("sep") || field.contains("SEP")) {
+        }
+        if (field.contains("sep") || field.contains("SEP")) {
             field = field.replaceAll("(?i)sep", String.valueOf(Month.SEPTEMBER.getValue()));
-        } else if (field.contains("oct") || field.contains("OCT")) {
+        }
+        if (field.contains("oct") || field.contains("OCT")) {
             field = field.replaceAll("(?i)oct", String.valueOf(Month.OCTOBER.getValue()));
-        } else if (field.contains("nov") || field.contains("NOV")) {
+        }
+        if (field.contains("nov") || field.contains("NOV")) {
             field = field.replaceAll("(?i)nov", String.valueOf(Month.NOVEMBER.getValue()));
-        } else if (field.contains("dec") || field.contains("DEC")) {
+        }
+        if (field.contains("dec") || field.contains("DEC")) {
             field = field.replaceAll("(?i)dec", String.valueOf(Month.DECEMBER.getValue()));
         }
         return field;
