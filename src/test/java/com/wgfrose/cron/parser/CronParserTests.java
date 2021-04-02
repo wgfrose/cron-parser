@@ -19,12 +19,13 @@ public class CronParserTests {
 
     @Test
     public void testValidCronPatterns() {
-        System.out.println(cronParser.parse("23 0-20/2 1,15 * 1-5 /usr/bin/find"));
-        System.out.println(cronParser.parse("5 4 * * SUN /usr/bin/find"));
-        System.out.println(cronParser.parse("10,44 14 * 3 SUN-SAT /usr/bin/find"));
-        System.out.println(cronParser.parse("10,44 14 * 3 SUN-FRI/2 /usr/bin/find"));
-        System.out.println(cronParser.parse("10,44 14 * 3 */2 /usr/bin/find"));
-        System.out.println(cronParser.parse("15 10 * * MON-FRI /usr/bin/find"));
+        Assert.assertNotEquals("Invalid cron pattern", cronParser.parse("23 0-20/2 1,15 * 1-5 /usr/bin/find"));
+        Assert.assertNotEquals("Invalid cron pattern", cronParser.parse("5 4 * * SUN /usr/bin/find"));
+        Assert.assertNotEquals("Invalid cron pattern", cronParser.parse("10,44 14 * 3 SUN-SAT /usr/bin/find"));
+        Assert.assertNotEquals("Invalid cron pattern", cronParser.parse("10,44 14 * 3 SUN-FRI/2 /usr/bin/find"));
+        Assert.assertNotEquals("Invalid cron pattern", cronParser.parse("10,44 14 * 3 */2 /usr/bin/find"));
+        Assert.assertNotEquals("Invalid cron pattern", cronParser.parse("15 10 * * MON-FRI /usr/bin/find"));
+        Assert.assertNotEquals("Invalid cron pattern", cronParser.parse("*/15 0 1,15 * 1-5 /usr/bin/find"));
     }
 
     @Test

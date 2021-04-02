@@ -47,6 +47,8 @@
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>3.2.0</version>
                 <configuration>
+                    <finalName>cron-parser</finalName>
+                    <outputDirectory>./</outputDirectory>
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>

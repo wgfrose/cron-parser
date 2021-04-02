@@ -168,7 +168,7 @@ public class CronParser {
         return expandedField;
     }
 
-    public String padRightSpaces(String inputString, int length) {
+    private String padRightSpaces(String inputString, int length) {
         if (inputString.length() >= length) {
             return inputString;
         }
