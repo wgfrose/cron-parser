@@ -2,7 +2,6 @@ package com.wgfrose.cron.parser;
 
 import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
-import java.time.DayOfWeek;
 import java.time.Month;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,8 +12,9 @@ public class CronParser {
     // Allows for at least one space between fields
     private static final String CRON_DELIMITER_REGEX = "\\s+";
     private static final String FIELD_DELIMITER = " ";
+    public static final String INVALID_CRON_STRING = "Invalid cron pattern";
 
-    private Map<String, String> regexMap;
+    private final Map<String, String> regexMap;
 
     private final int minuteIndex = 0;
     private final int hourIndex = 1;
@@ -22,19 +22,6 @@ public class CronParser {
     private final int monthIndex = 3;
     private final int dayOfWeekIndex = 4;
     private final int commandIndex = 5;
-
-    private final String minuteLabel = "minute";
-    private final String hourLabel = "hour";
-    private final String dayOfMonthLabel = "day of month";
-    private final String monthLabel = "month";
-    private final String dayOfWeekLabel = "day of week";
-    private final String commandLabel = "command";
-
-    private String expandedMinute;
-    private String expandedHour;
-    private String expandedDayOfMonth;
-    private String expandedMonth;
-    private String expandedDayOfWeek;
 
     public CronParser() {
         this.regexMap = this.buildCronRegex();
@@ -45,12 +32,18 @@ public class CronParser {
         System.out.println(parser.parse(args[0]));
     }
 
+    /**
+     * Method to parse the cron pattern provided by the user into a readable expanded format.
+     *
+     * @param argument - The argument passed in by the user, e.g. "23 0-20/2 1,15 * 1-5 /usr/bin/find".
+     * @return - The formatted expansion of a cron pattern.
+     */
     public String parse(final String argument) {
         String[] cronFields = argument.split(CRON_DELIMITER_REGEX);
         if (validateAllFields(cronFields)) {
             return printExpanded(cronFields);
         } else {
-            return "Invalid cron pattern";
+            return INVALID_CRON_STRING;
         }
     }
 
@@ -99,26 +92,28 @@ public class CronParser {
 
     private String printExpanded(String[] fields) {
         StringBuilder stringbuilder = new StringBuilder();
-        this.expandedMinute = expandField(fields[minuteIndex], 0, 59);
-        this.expandedHour = expandField(fields[hourIndex], 0, 23);
-        this.expandedDayOfMonth = expandField(fields[dayOfMonthIndex], 1, 31);
-        this.expandedMonth = expandField(fields[monthIndex], 1, 12);
-        this.expandedDayOfWeek = expandField(fields[dayOfWeekIndex], 0, 6);
+        String expandedMinute = expandField(fields[minuteIndex], 0, 59, true);
+        String expandedHour = expandField(fields[hourIndex], 0, 23, true);
+        String expandedDayOfMonth = expandField(fields[dayOfMonthIndex], 1, 31, false);
+        String expandedMonth = expandField(fields[monthIndex], 1, 12, false);
+        String expandedDayOfWeek = expandField(fields[dayOfWeekIndex], 0, 6, true);
 
-        stringbuilder.append(padRightSpaces(minuteLabel, 14)).append(expandedMinute).append("\n");
-        stringbuilder.append(padRightSpaces(hourLabel, 14)).append(expandedHour).append("\n");
-        stringbuilder.append(padRightSpaces(dayOfMonthLabel, 14)).append(expandedDayOfMonth).append("\n");
-        stringbuilder.append(padRightSpaces(monthLabel, 14)).append(expandedMonth).append("\n");
-        stringbuilder.append(padRightSpaces(dayOfWeekLabel, 14)).append(expandedDayOfWeek).append("\n");
-        stringbuilder.append(padRightSpaces(commandLabel, 14)).append(fields[commandIndex]).append("\n");
+        stringbuilder.append(padRightSpaces("minute", 14)).append(expandedMinute.trim()).append("\n");
+        stringbuilder.append(padRightSpaces("hour", 14)).append(expandedHour.trim()).append("\n");
+        stringbuilder.append(padRightSpaces("day of month", 14)).append(expandedDayOfMonth.trim()).append("\n");
+        stringbuilder.append(padRightSpaces("month", 14)).append(expandedMonth.trim()).append("\n");
+        stringbuilder.append(padRightSpaces("day of week", 14)).append(expandedDayOfWeek.trim()).append("\n");
+        stringbuilder.append(padRightSpaces("command", 14)).append(fields[commandIndex].trim()).append("\n");
 
         return stringbuilder.toString();
     }
 
-    private String expandField(String field, int min, int max) {
+    // Expand a time field by providing the min and max possible for that time unit
+    private String expandField(String field, int min, int max, boolean zeroIndexed) {
         String expandedField = "";
         field = swapNamesForNumbers(field);
         try {
+            // If we only see an integer, that's all we need
             Integer.parseInt(field);
             expandedField = field;
         } catch (NumberFormatException e) {
@@ -130,12 +125,23 @@ public class CronParser {
             } else if (field.contains("-") && !field.contains("/")) {
                 int start = Integer.parseInt(field.split("-")[0]);
                 int end = Integer.parseInt(field.split("-")[1]);
-                if (start > end) end = (max * 2);
-                for (int i = start; i <= end; i++) {
-                    if (i > max) {
-                        expandedField += (i - max - 1) + FIELD_DELIMITER;
-                    } else {
-                        expandedField += i + FIELD_DELIMITER;
+                if (zeroIndexed) {
+                    if (start > end) end = (max + end) + 1;
+                    for (int i = start; i <= end; i++) {
+                        if (i > max) {
+                            expandedField += (i - max - 1) + FIELD_DELIMITER;
+                        } else {
+                            expandedField += i + FIELD_DELIMITER;
+                        }
+                    }
+                } else {
+                    if (start > end) end = (max + end);
+                    for (int i = start; i <= end; i++) {
+                        if (i > max) {
+                            expandedField += (i - max) + FIELD_DELIMITER;
+                        } else {
+                            expandedField += i + FIELD_DELIMITER;
+                        }
                     }
                 }
             } else if (!field.contains("-") & field.contains("/")) {
@@ -149,13 +155,26 @@ public class CronParser {
                 int step = Integer.parseInt(field.split("/")[1]);
                 int start = Integer.parseInt(field.split("/")[0].split("-")[0]);
                 int end = Integer.parseInt(field.split("/")[0].split("-")[1]);
-                if (start > end) end = (max * 2);
-                for (int i = start; i <= end; i++) {
-                    if ((i > max) && ((i - max) % step == 0)) {
-                        expandedField += (i - max - 1) + FIELD_DELIMITER;
-                    } else {
-                        if (i % step == 0) {
-                            expandedField += i + FIELD_DELIMITER;
+                if (zeroIndexed) {
+                    if (start > end) end = (max + end) + 1;
+                    for (int i = start; i <= end; i++) {
+                        if ((i > max) && ((i - max) % step == 0)) {
+                            expandedField += (i - max - 1) + FIELD_DELIMITER;
+                        } else {
+                            if (i % step == 0) {
+                                expandedField += i + FIELD_DELIMITER;
+                            }
+                        }
+                    }
+                } else {
+                    if (start > end) end = (max + end);
+                    for (int i = start; i <= end; i++) {
+                        if ((i > max) && ((i - max) % step == 0)) {
+                            expandedField += (i - max) + FIELD_DELIMITER;
+                        } else {
+                            if (i % step == 0) {
+                                expandedField += i + FIELD_DELIMITER;
+                            }
                         }
                     }
                 }
@@ -168,6 +187,7 @@ public class CronParser {
         return expandedField;
     }
 
+    // Pad a string with n number of spaces on the right
     private String padRightSpaces(String inputString, int length) {
         if (inputString.length() >= length) {
             return inputString;
@@ -180,6 +200,7 @@ public class CronParser {
         return sb.toString();
     }
 
+    // Generates regex patterns to validate each time field
     // Not allowing for '?', 'L', 'W' or '#' special characters
     private Map<String, String> buildCronRegex() {
         // Singular allowed numbers regex
@@ -211,6 +232,7 @@ public class CronParser {
         return fieldRegex;
     }
 
+    // TODO: Not sure if there is a better way to swap day/month names for integer values?
     private String swapNamesForNumbers(String field) {
         if (field.contains("mon") || field.contains("MON")) {
             field = field.replaceAll("(?i)mon", "1");
