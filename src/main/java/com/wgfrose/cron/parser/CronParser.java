@@ -103,7 +103,7 @@ public class CronParser {
         stringbuilder.append(padRightSpaces("day of month", 14)).append(expandedDayOfMonth.trim()).append("\n");
         stringbuilder.append(padRightSpaces("month", 14)).append(expandedMonth.trim()).append("\n");
         stringbuilder.append(padRightSpaces("day of week", 14)).append(expandedDayOfWeek.trim()).append("\n");
-        stringbuilder.append(padRightSpaces("command", 14)).append(fields[commandIndex].trim()).append("\n");
+        stringbuilder.append(padRightSpaces("command", 14)).append(fields[commandIndex].trim());
 
         return stringbuilder.toString();
     }
@@ -232,7 +232,6 @@ public class CronParser {
         return fieldRegex;
     }
 
-    // TODO: Not sure if there is a better way to swap day/month names for integer values?
     private String swapNamesForNumbers(String field) {
         if (field.contains("mon") || field.contains("MON")) {
             field = field.replaceAll("(?i)mon", "1");
