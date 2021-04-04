@@ -16,12 +16,12 @@ public class CronParser {
 
     private final Map<String, String> regexMap;
 
-    private final int minuteIndex = 0;
-    private final int hourIndex = 1;
-    private final int dayOfMonthIndex = 2;
-    private final int monthIndex = 3;
-    private final int dayOfWeekIndex = 4;
-    private final int commandIndex = 5;
+    private static final int MINUTE_INDEX = 0;
+    private static final int HOUR_INDEX = 1;
+    private static final int DAY_OF_MONTH_INDEX = 2;
+    private static final int MONTH_INDEX = 3;
+    private static final int DAY_OF_WEEK_INDEX = 4;
+    private static final int COMMAND_INDEX = 5;
 
     public CronParser() {
         this.regexMap = this.buildCronRegex();
@@ -29,7 +29,11 @@ public class CronParser {
 
     public static void main(String[] args) {
         CronParser parser = new CronParser();
-        System.out.println(parser.parse(args[0]));
+        try {
+            System.out.println(parser.parse(args[0]));
+        } catch (ArrayIndexOutOfBoundsException e) {
+            System.out.println("No cron pattern argument supplied");
+        }
     }
 
     /**
@@ -49,16 +53,16 @@ public class CronParser {
 
     private boolean validateAllFields(String[] fields) {
         return isNumOfFieldsValid(fields) &&
-                isMinuteFieldValid(fields[this.minuteIndex]) &&
-                isHourFieldValid(fields[this.hourIndex]) &&
-                isDayOfMonthFieldValid(fields[this.dayOfMonthIndex]) &&
-                isMonthFieldValid(fields[this.monthIndex]) &&
-                isDayOfWeekFieldValid(fields[this.dayOfWeekIndex]) &&
-                isCommandFieldValid(fields[this.commandIndex]);
+                isMinuteFieldValid(fields[MINUTE_INDEX]) &&
+                isHourFieldValid(fields[HOUR_INDEX]) &&
+                isDayOfMonthFieldValid(fields[DAY_OF_MONTH_INDEX]) &&
+                isMonthFieldValid(fields[MONTH_INDEX]) &&
+                isDayOfWeekFieldValid(fields[DAY_OF_WEEK_INDEX]) &&
+                isCommandFieldValid(fields[COMMAND_INDEX]);
     }
 
     private boolean isNumOfFieldsValid(String[] fields) {
-        return (fields.length == 6);
+        return fields.length == 6;
     }
 
     private boolean isMinuteFieldValid(String minute) {
@@ -92,28 +96,28 @@ public class CronParser {
 
     private String printExpanded(String[] fields) {
         StringBuilder stringbuilder = new StringBuilder();
-        String expandedMinute = expandField(fields[minuteIndex], 0, 59, true);
-        String expandedHour = expandField(fields[hourIndex], 0, 23, true);
-        String expandedDayOfMonth = expandField(fields[dayOfMonthIndex], 1, 31, false);
-        String expandedMonth = expandField(fields[monthIndex], 1, 12, false);
-        String expandedDayOfWeek = expandField(fields[dayOfWeekIndex], 0, 6, true);
+        String expandedMinute = expandField(fields[MINUTE_INDEX], 0, 59, true);
+        String expandedHour = expandField(fields[HOUR_INDEX], 0, 23, true);
+        String expandedDayOfMonth = expandField(fields[DAY_OF_MONTH_INDEX], 1, 31, false);
+        String expandedMonth = expandField(fields[MONTH_INDEX], 1, 12, false);
+        String expandedDayOfWeek = expandField(fields[DAY_OF_WEEK_INDEX], 0, 6, true);
 
         stringbuilder.append(padRightSpaces("minute", 14)).append(expandedMinute.trim()).append("\n");
         stringbuilder.append(padRightSpaces("hour", 14)).append(expandedHour.trim()).append("\n");
         stringbuilder.append(padRightSpaces("day of month", 14)).append(expandedDayOfMonth.trim()).append("\n");
         stringbuilder.append(padRightSpaces("month", 14)).append(expandedMonth.trim()).append("\n");
         stringbuilder.append(padRightSpaces("day of week", 14)).append(expandedDayOfWeek.trim()).append("\n");
-        stringbuilder.append(padRightSpaces("command", 14)).append(fields[commandIndex].trim());
+        stringbuilder.append(padRightSpaces("command", 14)).append(fields[COMMAND_INDEX].trim());
 
         return stringbuilder.toString();
     }
 
-    // Expand a time field by providing the min and max possible for that time unit
+    // Expand a time field by providing the min and max possible for that time unit an if the field is zero indexed
     private String expandField(String field, int min, int max, boolean zeroIndexed) {
         String expandedField = "";
         field = swapNamesForNumbers(field);
         try {
-            // If we only see an integer, that's all we need
+            // If we only see an integer, then set that to be the expanded field
             Integer.parseInt(field);
             expandedField = field;
         } catch (NumberFormatException e) {

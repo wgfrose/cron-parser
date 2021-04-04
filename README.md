@@ -2,7 +2,7 @@
 A basic CLI cron pattern parser to expand the time intervals provided in a given pattern.
 
 ### Usage on macOS / Linux
-1. Download the `cron-parser.jar` file from the repo
+1. Download the `cron-parser.jar` file from the [repo](https://github.com/wgfrose/cron-parser/blob/main/cron-parser.jar)
 2. Ensure you have Java installed, this was built on Java 15.0.2
 3. Run `java -jar /path/to/cron-parser.jar` in the terminal  followed by your cron pattern argument - e.g. `java -jar /path/to/cron-parser.jar "10,44 14 * 3 SUN-SAT /usr/bin/find"`
 
@@ -10,7 +10,7 @@ This parser supports the standard 5-field cron format: minutes, hours, days of t
 
 It does support `JAN-DEC` and `SUN-SAT` name values for months and weekdays. 
 
-Also note the macOS / Linux command location at the end that needs to be provided.
+Also note the macOS / Linux command location at the end that needs to be provided. This is not validated to prove the file is executable or if the location actually exists.
 
 ### Acceptable cron pattern format examples:
 - `4 5 * * MON-FRI /usr/bin/find`
