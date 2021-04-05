@@ -237,62 +237,63 @@ public class CronParser {
     }
 
     private String swapNamesForNumbers(String field) {
-        if (field.contains("mon") || field.contains("MON")) {
-            field = field.replaceAll("(?i)mon", "1");
+        field = field.toUpperCase();
+        if (field.contains("MON")) {
+            field = field.replaceAll("MON", "1");
         }
-        if (field.contains("tue") || field.contains("TUE")) {
-            field = field.replaceAll("(?i)tue", "2");
+        if (field.contains("TUE")) {
+            field = field.replaceAll("TUE", "2");
         }
-        if (field.contains("wed") || field.contains("WED")) {
-            field = field.replaceAll("(?i)wed", "3");
+        if (field.contains("WED")) {
+            field = field.replaceAll("WED", "3");
         }
-        if (field.contains("thu") || field.contains("THU")) {
-            field = field.replaceAll("(?i)thu", "4");
+        if (field.contains("THU")) {
+            field = field.replaceAll("THU", "4");
         }
-        if (field.contains("fri") || field.contains("FRI")) {
-            field = field.replaceAll("(?i)fri", "5");
+        if (field.contains("FRI")) {
+            field = field.replaceAll("FRI", "5");
         }
-        if (field.contains("sat") || field.contains("SAT")) {
-            field = field.replaceAll("(?i)sat", "6");
+        if (field.contains("SAT")) {
+            field = field.replaceAll("SAT", "6");
         }
-        if (field.contains("sun") || field.contains("SUN")) {
-            field = field.replaceAll("(?i)sun", "0");
+        if (field.contains("SUN")) {
+            field = field.replaceAll("SUN", "0");
         }
-        if (field.contains("jan") || field.contains("JAN")) {
-            field = field.replaceAll("(?i)jan", String.valueOf(Month.JANUARY.getValue()));
+        if (field.contains("JAN")) {
+            field = field.replaceAll("JAN", String.valueOf(Month.JANUARY.getValue()));
         }
-        if (field.contains("feb") || field.contains("FEB")) {
-            field = field.replaceAll("(?i)feb", String.valueOf(Month.FEBRUARY.getValue()));
+        if (field.contains("FEB")) {
+            field = field.replaceAll("FEB", String.valueOf(Month.FEBRUARY.getValue()));
         }
-        if (field.contains("mar") || field.contains("MAR")) {
-            field = field.replaceAll("(?i)mar", String.valueOf(Month.MARCH.getValue()));
+        if (field.contains("MAR")) {
+            field = field.replaceAll("MAR", String.valueOf(Month.MARCH.getValue()));
         }
-        if (field.contains("apr") || field.contains("APR")) {
-            field = field.replaceAll("(?i)apr", String.valueOf(Month.APRIL.getValue()));
+        if (field.contains("APR")) {
+            field = field.replaceAll("APR", String.valueOf(Month.APRIL.getValue()));
         }
-        if (field.contains("may") || field.contains("MAY")) {
-            field = field.replaceAll("(?i)may", String.valueOf(Month.MAY.getValue()));
+        if (field.contains("MAY")) {
+            field = field.replaceAll("MAY", String.valueOf(Month.MAY.getValue()));
         }
-        if (field.contains("jun") || field.contains("JUN")) {
-            field = field.replaceAll("(?i)jun", String.valueOf(Month.JUNE.getValue()));
+        if (field.contains("JUN")) {
+            field = field.replaceAll("JUN", String.valueOf(Month.JUNE.getValue()));
         }
-        if (field.contains("jul") || field.contains("JUL")) {
-            field = field.replaceAll("(?i)jul", String.valueOf(Month.JULY.getValue()));
+        if (field.contains("JUL")) {
+            field = field.replaceAll("JUL", String.valueOf(Month.JULY.getValue()));
         }
-        if (field.contains("aug") || field.contains("AUG")) {
-            field = field.replaceAll("(?i)aug", String.valueOf(Month.AUGUST.getValue()));
+        if (field.contains("AUG")) {
+            field = field.replaceAll("AUG", String.valueOf(Month.AUGUST.getValue()));
         }
-        if (field.contains("sep") || field.contains("SEP")) {
-            field = field.replaceAll("(?i)sep", String.valueOf(Month.SEPTEMBER.getValue()));
+        if (field.contains("SEP")) {
+            field = field.replaceAll("SEP", String.valueOf(Month.SEPTEMBER.getValue()));
         }
-        if (field.contains("oct") || field.contains("OCT")) {
-            field = field.replaceAll("(?i)oct", String.valueOf(Month.OCTOBER.getValue()));
+        if (field.contains("OCT")) {
+            field = field.replaceAll("OCT", String.valueOf(Month.OCTOBER.getValue()));
         }
-        if (field.contains("nov") || field.contains("NOV")) {
-            field = field.replaceAll("(?i)nov", String.valueOf(Month.NOVEMBER.getValue()));
+        if (field.contains("NOV")) {
+            field = field.replaceAll("NOV", String.valueOf(Month.NOVEMBER.getValue()));
         }
-        if (field.contains("dec") || field.contains("DEC")) {
-            field = field.replaceAll("(?i)dec", String.valueOf(Month.DECEMBER.getValue()));
+        if (field.contains("DEC")) {
+            field = field.replaceAll("DEC", String.valueOf(Month.DECEMBER.getValue()));
         }
         return field;
     }
